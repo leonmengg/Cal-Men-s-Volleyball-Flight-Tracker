@@ -40,7 +40,8 @@
     background-image:radial-gradient(var(--dot-color) 1px, transparent 1px);
     background-size:24px 24px;
   }
-  #app{position:relative;z-index:1;}  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);}
+  #app{position:relative;z-index:1;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);}
   input[type=text],input[type=date],input[type=time],input[type=number]{
     background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:8px 10px;font-size:13px;width:100%;
     font-family:inherit;
@@ -226,7 +227,7 @@ function summaryHTML(){
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
         <div style="font-size:15px;font-weight:800;">Flight summary</div>
         <div style="font-size:12px;color:var(--sub);">${totalFilled} on the roster · ${totalArrived} arrived ${connected?'':'· <span style="color:#e5484d;">connecting…</span>'}</div>
-        </div>
+      </div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;">${legBlock('Outbound flights', outG)}${legBlock('Return flights', retG)}</div>
     </div>`;
 }
@@ -297,22 +298,6 @@ function cardHTML(id){
       <button class="link-btn" onclick="startEdit('${id}')" style="color:${team.text};">Edit</button>
     </div>`;
 }
-  return `
-    <div class="card slot-card" style="padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">
-      <label style="display:flex;align-items:center;cursor:${filled?'pointer':'not-allowed'};">
-        <input type="checkbox" ${p.arrived?'checked':''} ${filled?'':'disabled'} onchange="toggleArrived('${id}',this.checked)" style="width:19px;height:19px;accent-color:var(--ok-text);">
-      </label>
-      <div style="flex:1;min-width:0;cursor:pointer;" onclick="startEdit('${id}')">
-        <div style="font-size:13.5px;font-weight:700;${filled?'':'color:var(--sub);font-weight:500;'}">${filled?p.name:'Slot '+id.slice(1)+' — empty, tap to add'} ${filled&&p.mode==='drive'?'<span style="font-size:11px;">🚗</span>':''}</div>
-        ${filled ? (p.mode==='drive'
-          ? `<div style="font-size:11px;color:var(--sub);margin-top:2px;">Driving${p.driveNotes?' · '+p.driveNotes:''}</div>`
-          : `<div style="font-size:11px;color:var(--sub);margin-top:2px;">Out: ${p.out.flightNum||'—'} · ${fmtDT(p.out.depDate,p.out.depTime)} &nbsp;|&nbsp; Ret: ${p.ret.flightNum||'—'} · ${fmtDT(p.ret.depDate,p.ret.depTime)}</div>`
-        ) : ''}
-      </div>
-      ${p.arrived?`<span style="font-size:11px;font-weight:700;color:var(--ok-text);background:var(--ok-bg);padding:3px 10px;border-radius:999px;">Arrived</span>`:''}
-      <button class="link-btn" onclick="startEdit('${id}')" style="color:${team.text};">Edit</button>
-    </div>`;
-}
 
 function ridesTabHTML(){
   const names = allNames();
@@ -372,7 +357,7 @@ function render(){
     {id:'U', label:'🚗 Group Ubers', text:'var(--blue-text)', bg:'var(--gold-bg)'}
   ];
   app.innerHTML = `
-      <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#003262 0%,#001b3d 100%);border-radius:18px;padding:22px 24px;margin-bottom:16px;box-shadow:0 10px 28px -10px rgba(0,50,98,.5);">
+    <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#003262 0%,#001b3d 100%);border-radius:18px;padding:22px 24px;margin-bottom:16px;box-shadow:0 10px 28px -10px rgba(0,50,98,.5);">
       <div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg, var(--gold), #ffdd7a, var(--gold));"></div>
       <svg class="campanile-deco" width="80" height="92" viewBox="0 0 86 96" fill="none" stroke="var(--gold)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 94 L18 82 L68 82 L68 94" stroke-width="1.6"/>
@@ -390,7 +375,6 @@ function render(){
         <circle cx="43" cy="1" r="1.8" stroke-width="1.2"/>
       </svg>
       <div style="position:relative;display:flex;align-items:center;gap:16px;">
-      <div style="position:relative;display:flex;align-items:center;gap:16px;">
         <div style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg, var(--gold), #e29e00);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.4);">🏐</div>
         <div>
           <div style="font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);opacity:.9;">UC Berkeley Athletics</div>
@@ -403,7 +387,8 @@ function render(){
     <div style="display:flex;gap:7px;margin-bottom:16px;">
       ${tabs.map(t=>`<button class="tab-btn" onclick="setTab('${t.id}')" style="border:1.5px solid ${tab===t.id?t.text:'var(--line)'};background:${tab===t.id?t.bg:'var(--card)'};color:${tab===t.id?t.text:'var(--ink)'};">${t.label}</button>`).join('')}
     </div>
-    <div>${tab==='U' ? ridesTabHTML() : teamTabHTML(tab)}</div>    `;
+    <div>${tab==='U' ? ridesTabHTML() : teamTabHTML(tab)}</div>
+  `;
 }
 
 function setTab(t){ state.tab = t; state.editing = null; render(); }
