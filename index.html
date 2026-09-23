@@ -57,6 +57,8 @@
   .link-btn:hover{background:var(--line);}
   .slot-card{transition:border-color .15s;}
   .slot-card:hover{border-color:var(--blue-text);}
+  .campanile-deco{position:absolute;right:14px;bottom:-4px;opacity:.32;pointer-events:none;}
+  @media (max-width:480px){ .campanile-deco{display:none;} }
 </style>
 </head>
 <body>
@@ -139,10 +141,19 @@ let db = null, connected = false;
 
 function slotIds(team){ return Array.from({length:SLOTS}, (_,i)=>team+(i+1)); }
 function emptyLeg(){ return {flightNum:'',from:'',to:'',depDate:'',depTime:'',arrDate:'',arrTime:''}; }
-function blankPerson(id, team, slot){ return {id, team, slot, name:'', mode:'fly', out:emptyLeg(), ret:emptyLeg(), driveNotes:'', arrived:false}; }function allNames(){
+function blankPerson(id, team, slot){ return {id, team, slot, name:'', mode:'fly', out:emptyLeg(), ret:emptyLeg(), driveNotes:'', arrived:false}; }
+function allNames(){
   const out = [];
   ['A','B'].forEach(t => slotIds(t).forEach(id=>{ const p=state.people[id]; if(p&&p.name) out.push({id,name:p.name,team:t}); }));
+  out.sort((a,b)=>a.name.localeCompare(b.name, undefined, {sensitivity:'base'}));
   return out;
+}
+function sortedSlotIds(team){
+  const ids = slotIds(team);
+  const filled = ids.filter(id => state.people[id] && state.people[id].name);
+  const empty = ids.filter(id => !(state.people[id] && state.people[id].name));
+  filled.sort((a,b)=>state.people[a].name.localeCompare(state.people[b].name, undefined, {sensitivity:'base'}));
+  return [...filled, ...empty];
 }
 
 function init(){
@@ -340,9 +351,24 @@ function render(){
     {id:'U', label:'🚗 Group Ubers', text:'var(--blue-text)', bg:'var(--gold-bg)'}
   ];
   app.innerHTML = `
-        <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#003262 0%,#001b3d 100%);border-radius:18px;padding:22px 24px;margin-bottom:16px;box-shadow:0 10px 28px -10px rgba(0,50,98,.5);">
-      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 2px, transparent 2px 26px);pointer-events:none;"></div>
+      <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#003262 0%,#001b3d 100%);border-radius:18px;padding:22px 24px;margin-bottom:16px;box-shadow:0 10px 28px -10px rgba(0,50,98,.5);">
       <div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg, var(--gold), #ffdd7a, var(--gold));"></div>
+      <svg class="campanile-deco" width="80" height="92" viewBox="0 0 86 96" fill="none" stroke="var(--gold)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 94 L18 82 L68 82 L68 94" stroke-width="1.6"/>
+        <path d="M23 82 L23 26 L63 26 L63 82" stroke-width="1.7"/>
+        <path d="M23.6 82 L23.6 26.6 L63.6 26.6 L63.6 82" stroke-width=".6" opacity=".45"/>
+        <rect x="30" y="36" width="26" height="15" rx="1" stroke-width="1.3"/>
+        <circle cx="43" cy="43.5" r="5.5" stroke-width="1.2"/>
+        <path d="M43 43.5 L43 40 M43 43.5 L46 45" stroke-width="1"/>
+        <path d="M27 28 L27 82 M31 29 L31 82 M35 30 L35 82" stroke-width=".5" opacity=".35"/>
+        <path d="M27 26 Q29 20 31 26 M35 26 Q37 20 39 26 M47 26 Q49 20 51 26 M55 26 Q57 20 59 26" stroke-width="1"/>
+        <path d="M18 26 L43 8 L68 26 Z" stroke-width="1.7"/>
+        <path d="M18.8 26.6 L43.8 9 L68.8 26.6" stroke-width=".6" opacity=".4"/>
+        <path d="M25 24 L38 13 M32 25 L44 15 M52 15 L61 24" stroke-width=".5" opacity=".4"/>
+        <path d="M43 8 L43 2" stroke-width="1.4"/>
+        <circle cx="43" cy="1" r="1.8" stroke-width="1.2"/>
+      </svg>
+      <div style="position:relative;display:flex;align-items:center;gap:16px;">
       <div style="position:relative;display:flex;align-items:center;gap:16px;">
         <div style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg, var(--gold), #e29e00);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.4);">🏐</div>
         <div>
@@ -356,8 +382,8 @@ function render(){
     <div style="display:flex;gap:7px;margin-bottom:16px;">
       ${tabs.map(t=>`<button class="tab-btn" onclick="setTab('${t.id}')" style="border:1.5px solid ${tab===t.id?t.text:'var(--line)'};background:${tab===t.id?t.bg:'var(--card)'};color:${tab===t.id?t.text:'var(--ink)'};">${t.label}</button>`).join('')}
     </div>
-    <div>${tab==='U' ? ridesTabHTML() : slotIds(tab).map(cardHTML).join('')}</div>
-  `;
+    <div>${tab==='U' ? ridesTabHTML() : sortedSlotIds(tab).map(cardHTML).join('')}</div>
+    `;
 }
 
 function setTab(t){ state.tab = t; state.editing = null; render(); }
